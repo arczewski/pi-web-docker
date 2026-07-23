@@ -1,0 +1,60 @@
+# pi-web Docker
+
+Self-hosted [pi-web](https://github.com/jmfederico/pi-web) server with [pi-coding-agent](https://github.com/earendil-works/pi-coding-agent).
+
+## Quick Start
+
+### Build
+
+```bash
+docker build -t pi-web .
+```
+
+All dependencies are verified with SHA512/SHA256 hashes. Build fails if any hash mismatches.
+
+### Run
+
+```bash
+docker run -d \
+  --name pi-web \
+  -p 8504:8504 \
+  -v ~/projects:/workspace \
+  pi-web
+```
+
+Open `http://localhost:8504` in your browser.
+
+## Configuration
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PORT` | `8504` | Port to listen on |
+
+Custom port:
+
+```bash
+docker run -d --name pi-web -p 9000:9000 -e PORT=9000 -v ~/projects:/workspace pi-web
+```
+
+## Management
+
+```bash
+# View logs
+docker logs -f pi-web
+
+# Stop/Start/Restart
+docker stop pi-web
+docker start pi-web
+docker restart pi-web
+
+# Remove
+docker stop pi-web && docker rm pi-web
+```
+
+## Security
+
+- **pi-coding-agent** v0.81.1: SHA512 from npm
+- **pi-web** v1.202607.1: SHA512 from npm
+- **forgejo-cli** v0.6.0: SHA256 verified after build
+
+If any hash doesn't match, the build aborts immediately.
