@@ -18,13 +18,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     cargo \
     && rm -rf /var/lib/apt/lists/*
 
-# Install forgejo CLI from crates.io (pinned version with SHA256 verification)
-RUN mkdir -p /tmp/forgejo-cli && \
-    curl -fSL -o /tmp/forgejo-cli.crate https://crates.io/api/v1/crates/forgejo-cli/0.6.0/download && \
-    echo "4d56acd6ab5caab2870d6e301cd6e42741ca98761fc1d5890dad09b21b44780e  /tmp/forgejo-cli.crate" | sha256sum -c - && \
-    tar xzf /tmp/forgejo-cli.crate -C /tmp/forgejo-cli --strip-components=1 && \
-    cargo install --force --locked --path /tmp/forgejo-cli && \
-    rm -rf /tmp/forgejo-cli /tmp/forgejo-cli.crate
+# Install forgejo CLI from crates.io (pinned version, validate binary SHA256)
+RUN cargo install forgejo-cli --version 0.6.0 --locked && \
+    sha256sum "$(which forgejo-cli)" | grep -q "^4d56acd6ab5caab2870d6e301cd6e42741ca98761fc1d5890dad09b21b44780e" && \
+    echo "forgejo-cli binary verified"
 
 # Install pi coding agent globally (pinned via tarball URL with integrity hash)
 RUN npm install -g --ignore-scripts https://registry.npmjs.org/@earendil-works/pi-coding-agent/-/pi-coding-agent-0.81.1.tgz#sha512-r6ovAsZOgAqbC/aU6s+/dPnv/sGZBuWyZNvi3pXjpbuX5wvp3XvGkQI7/VLvX2o9XpmpFaPUxKNym1WfkN/P8A==
