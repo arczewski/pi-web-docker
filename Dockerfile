@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     SHELL=/bin/bash \
     TERM=xterm-256color
 
-# Install system dependencies (git, build tools)
+# Install system dependencies (git, build tools, Python for node-pty)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     pkg-config \
     libssl-dev \
+    python3 \
     && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
     && . "$HOME/.cargo/env" && cargo --version \
     && rm -rf /var/lib/apt/lists/*
