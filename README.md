@@ -70,8 +70,8 @@ docker stop pi-web && docker rm pi-web
 
 ## Security
 
-- **pi-coding-agent** v0.81.1: SHA512 from npm
-- **pi-web** v1.202607.1: SHA512 from npm
-- **forgejo-cli** v0.6.0: SHA256 verified after build
+- **pi-coding-agent** v0.81.1: SHA512 integrity hash from npm
+- **pi-web** v1.202607.1: SHA512 integrity hash from npm
+- **forgejo-cli** v0.6.0: Version pinned, compiled from source
 
-If any hash doesn't match, the build aborts immediately.
+npm packages are verified with integrity hashes. Build fails if any hash mismatches.
