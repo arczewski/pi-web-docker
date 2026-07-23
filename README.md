@@ -36,6 +36,23 @@ Custom port:
 docker run -d --name pi-web -p 9000:9000 -e PORT=9000 -v ~/projects:/workspace pi-web
 ```
 
+## User Home & Pi Configuration
+
+The container runs as user `pi-web` with home directory at `/home/pi-web`.
+
+To mount your local `.pi` folder (for custom skills, configurations, etc.):
+
+```bash
+docker run -d \
+  --name pi-web \
+  -p 8504:8504 \
+  -v ~/projects:/workspace \
+  -v ~/.pi:/home/pi-web/.pi \
+  pi-web
+```
+
+This maps your local `~/.pi` directory into the container at `/home/pi-web/.pi`, allowing pi-web to access your custom skills, configurations, and preferences.
+
 ## Management
 
 ```bash
