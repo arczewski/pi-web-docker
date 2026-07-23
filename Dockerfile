@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     SHELL=/bin/bash \
     TERM=xterm-256color
 
-# Install system dependencies (git, Rust toolchain from Debian, forgejo-cli)
+# Install system dependencies (git, build tools)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
@@ -14,12 +14,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     pkg-config \
     libssl-dev \
-    rustc \
-    cargo \
+    && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
+    && . "$HOME/.cargo/env" && cargo --version \
     && rm -rf /var/lib/apt/lists/*
 
 # Install forgejo CLI from crates.io (pinned version, validate binary SHA256)
-RUN cargo install forgejo-cli --version 0.6.0 --locked && \
+RUN . "$HOME/.cargo/env" && \
+    cargo install forgejo-cli --version 0.6.0 --locked && \
     BINARY_SHA=$(sha256sum "$(which forgejo-cli)" | awk '{print $1}') && \
     EXPECTED_SHA="4d56acd6ab5caab2870d6e301cd6e42741ca98761fc1d5890dad09b21b44780e" && \
     if [ "$BINARY_SHA" != "$EXPECTED_SHA" ]; then \
