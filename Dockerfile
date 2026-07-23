@@ -28,8 +28,7 @@ RUN npm install -g --ignore-scripts https://registry.npmjs.org/@earendil-works/p
 
 # Install pi-web from npm (pinned via tarball URL with integrity hash)
 RUN npm install -g --allow-scripts=node-pty https://registry.npmjs.org/@jmfederico/pi-web/-/pi-web-1.202607.1.tgz#sha512-7a9ZsvkWX71PAkZ8fOv+yCsADabTCFEAr+qXcdOE6ho/fUhMHaCKHP2LTDOaEHr/NK2w8+PKgCdPjrUfBfQwww== && \
-    pi-web install && \
-    pi-web doctor
+    npm cache clean --force
 
 # Create non-root user
 RUN groupadd -g 1000 pi-web && \
