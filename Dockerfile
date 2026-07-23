@@ -20,8 +20,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Install forgejo CLI from crates.io (pinned version, validate binary SHA256)
 RUN cargo install forgejo-cli --version 0.6.0 --locked && \
-    sha256sum "$(which forgejo-cli)" | grep -q "^4d56acd6ab5caab2870d6e301cd6e42741ca98761fc1d5890dad09b21b44780e" && \
-    echo "forgejo-cli binary verified"
+    BINARY_SHA=$(sha256sum "$(which forgejo-cli)" | awk '{print $1}') && \
+    EXPECTED_SHA="4d56acd6ab5caab2870d6e301cd6e42741ca98761fc1d5890dad09b21b44780e" && \
+    if [ "$BINARY_SHA" != "$EXPECTED_SHA" ]; then \
+        echo "ERROR: forgejo-cli binary SHA256 mismatch!" && \
+        echo "Expected: $EXPECTED_SHA" && \
+        echo "Got:      $BINARY_SHA" && \
+        exit 1; \
+    fi && \
+    echo "forgejo-cli binary verified: $BINARY_SHA"
 
 # Install pi coding agent globally (pinned via tarball URL with integrity hash)
 RUN npm install -g --ignore-scripts https://registry.npmjs.org/@earendil-works/pi-coding-agent/-/pi-coding-agent-0.81.1.tgz#sha512-r6ovAsZOgAqbC/aU6s+/dPnv/sGZBuWyZNvi3pXjpbuX5wvp3XvGkQI7/VLvX2o9XpmpFaPUxKNym1WfkN/P8A==
