@@ -6,7 +6,7 @@ FROM node:24-bookworm-slim
      SHELL=/bin/bash \
      TERM=xterm-256color
 
-   # Install system dependencies (git, cargo/rust toolchain for forgejo-cli)
+   # Install system dependencies (git, Rust toolchain from Debian, forgejo-cli)
    RUN apt-get update && apt-get install -y --no-install-recommends \
        git \
        curl \
@@ -14,24 +14,27 @@ FROM node:24-bookworm-slim
        build-essential \
        pkg-config \
        libssl-dev \
-       && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
-       && . "$HOME/.cargo/env" && cargo --version \
+       rustc \
+       cargo \
        && rm -rf /var/lib/apt/lists/*
 
-   # Install forgejo CLI
-   RUN . "$HOME/.cargo/env" && cargo install forgejo-cli --locked
+   # Install forgejo CLI from crates.io (pinned version with SHA256 verification)
+   RUN mkdir -p /tmp/forgejo-cli && \
+       curl -fSL -o /tmp/forgejo-cli.crate https://crates.io/api/v1/crates/forgejo-cli/0.6.0/download && \
+       echo "4d56acd6ab5caab2870d6e301cd6e42741ca98761fc1d5890dad09b21b44780e  /tmp/forgejo-cli.crate" | sha256sum -c - && \
+       tar xzf /tmp/forgejo-cli.crate -C /tmp/forgejo-cli --strip-components=1 && \
+       cargo install --force --locked --path /tmp/forgejo-cli && \
+       rm -rf /tmp/forgejo-cli /tmp/forgejo-cli.crate
 
    # Use standard npm registry (package-lock.json pins exact versions via SHA)
 
    # Install pi coding agent globally (pinned via tarball URL with integrity hash)
-   RUN npm install -g --ignore-scripts https://registry.npmjs.org/@earendil-works/pi-coding-agent/-/pi-coding-agent-0.81.1.tgz
+   RUN npm install -g --ignore-scripts https://registry.npmjs.org/@earendil-works/pi-coding-agent/-/pi-coding-agent-0.81.1.tgz#sha512-r6ovAsZOgAqbC/aU6s+/dPnv/sGZBuWyZNvi3pXjpbuX5wvp3XvGkQI7/VLvX2o9XpmpFaPUxKNym1WfkN/P8A==
 
-   # Install pi-web globally
-   COPY package.json package-lock.json ./
-   RUN npm ci --omit=dev --include=peer --allow-scripts=node-pty && \
-       npm run build && \
-       npm install -g . && \
-       npm cache clean --force
+   # Install pi-web from npm (pinned via tarball URL with integrity hash)
+   RUN npm install -g --allow-scripts=node-pty https://registry.npmjs.org/@jmfederico/pi-web/-/pi-web-1.202607.1.tgz#sha512-7a9ZsvkWX71PAkZ8fOv+yCsADabTCFEAr+qXcdOE6ho/fUhMHaCKHP2LTDOaEHr/NK2w8+PKgCdPjrUfBfQwww== && \
+       pi-web install && \
+       pi-web doctor
 
    # Create non-root user
    RUN groupadd -g 1000 pi-web && \
