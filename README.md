@@ -47,7 +47,7 @@ docker run -d \
   --name pi-web \
   -p 8504:8504 \
   -v ~/projects:/workspace \
-  -v ~/.pi:/home/pi-web/.pi \
+  -v ~/.pi:/home/pi-web/.pi:ro \
   pi-web
 ```
 
