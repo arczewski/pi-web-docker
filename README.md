@@ -48,17 +48,31 @@ docker run -d --name pi-web -p 9000:9000 -e PORT=9000 -v ~/projects:/workspace p
 
 ### pi-coding-agent (AI Provider)
 
-pi reads API keys directly from environment variables at runtime. Pass the key for your chosen provider:
+pi reads API keys and provider configuration from your `~/.pi/agent/` directory at runtime. Mount it to use your existing setup:
+
+**Option 1: Mount your existing config (recommended)**
+
+This brings in your auth, custom providers (local servers, llama.cpp, etc.), settings, and models — everything works as-is:
+
+```bash
+docker run -d \
+  --name pi-web \
+  -p 8504:8504 \
+  -v ~/projects:/workspace \
+  -v ~/.pi:/home/pi-web/.pi:ro \
+  pi-web
+```
+
+**Option 2: Environment variables**
+
+pi also reads API keys from env vars. Useful if you don't want to mount your full config:
 
 | Provider | Environment Variable |
 |----------|---------------------|
 | Anthropic | `ANTHROPIC_API_KEY` |
 | OpenAI | `OPENAI_API_KEY` |
-| Google Gemini | `GEMINI_API_KEY` |
 | DeepSeek | `DEEPSEEK_API_KEY` |
-| xAI | `XAI_API_KEY` |
-| OpenRouter | `OPENROUTER_API_KEY` |
-| Groq | `GROQ_API_KEY` |
+| Google Gemini | `GEMINI_API_KEY` |
 | ... and many more | see [pi docs](https://github.com/earendil-works/pi-coding-agent) |
 
 ```bash
@@ -66,7 +80,7 @@ docker run -d \
   --name pi-web \
   -p 8504:8504 \
   -v ~/projects:/workspace \
-  -e ANTHROPIC_API_KEY=sk-ant-... \
+  -e DEEPSEEK_API_KEY=sk-... \
   pi-web
 ```
 
@@ -81,7 +95,7 @@ The container includes CLI tools for Git platform operations:
 | **Gitea CLI** | `tea` | any Gitea instance | `TEA_TOKEN` + `TEA_BASE_URL` |
 | **Forgejo CLI** | `fj` | any Forgejo instance | `FORGEJO_TOKEN` + `FORGEJO_URL` |
 
-### Full example with all tokens
+### Full example (config + all tokens)
 
 ```bash
 docker run -d \
@@ -89,7 +103,6 @@ docker run -d \
   -p 8504:8504 \
   -v ~/projects:/workspace \
   -v ~/.pi:/home/pi-web/.pi:ro \
-  -e ANTHROPIC_API_KEY=sk-ant-... \
   -e GITHUB_TOKEN=ghp_xxx \
   -e GITLAB_TOKEN=glpat_xxx \
   -e GITLAB_HOST=gitlab.example.com \
@@ -100,24 +113,7 @@ docker run -d \
   pi-web
 ```
 
-All environment variables are consumed at runtime by their respective tools, allowing agent skills to use both AI and Git platform APIs.
-
-## User Home & Pi Configuration
-
-The container runs as user `pi-web` with home directory at `/home/pi-web`.
-
-To mount your local `.pi` folder (for custom skills, configurations, etc.):
-
-```bash
-docker run -d \
-  --name pi-web \
-  -p 8504:8504 \
-  -v ~/projects:/workspace \
-  -v ~/.pi:/home/pi-web/.pi:ro \
-  pi-web
-```
-
-This maps your local `~/.pi` directory into the container at `/home/pi-web/.pi`, allowing pi-web to access your custom skills, configurations, and preferences.
+All environment variables are consumed at runtime by their respective tools. The AI provider config (DeepSeek, local servers, llama.cpp) comes from your mounted `~/.pi/agent/` files — no need to pass those as env vars.
 
 ## Management
 
