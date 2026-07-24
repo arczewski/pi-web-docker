@@ -68,9 +68,9 @@ RUN groupadd -o -g 1000 pi-web && \
 # Workspace for all user projects (not pi-web itself)
 WORKDIR /workspace
 
-# Default port and host — override at runtime with -e PORT=... / -e HOST=...
+# Default port and host — override at runtime with -e PORT=... / -e PI_WEB_HOST=...
 ENV PORT=8504 \
-    HOST=0.0.0.0
+    PI_WEB_HOST=0.0.0.0
 
 EXPOSE ${PORT}
 
