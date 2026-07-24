@@ -31,6 +31,7 @@ docker run -d --name pi-web -p 8504:8504 \
   -e GITLAB_TOKEN=123 \
   -e FORGEJO_TOKEN=123 -e FORGEJO_URL=https://forgejo.example.com \
   -e TEA_TOKEN=123 -e TEA_BASE_URL=https://gitea.example.com \
+  -e PI_WEB_PROJECT=/workspace/my-project \           # auto-open this project on page load
   -e SKILL_REPOSITORIES="https://git.su58.net/arczewski/dot-agent-skills.git" \  # auto-clone skills on startup
   pi-web
 ```
@@ -48,6 +49,7 @@ docker run -d --name pi-web -p 8504:8504 \
 | `FORGEJO_URL` | — | Forgejo instance URL |
 | `TEA_TOKEN` | — | Gitea CLI (`tea`) |
 | `TEA_BASE_URL` | — | Gitea instance URL |
+| `PI_WEB_PROJECT` | — | Subdirectory under `/workspace` to open automatically on page load |
 | `SKILL_REPOSITORIES` | — | Space-separated git URLs cloned to `~/.pi/agent/skills/` on startup |
 
 Mounting `~/.pi:/home/pi-web/.pi:ro` brings in all your pi config (settings, models, auth, skills) at once — no need for individual env vars except API keys that aren't in `auth.json`.
