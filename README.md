@@ -80,7 +80,7 @@ docker run -d \
   --name pi-web \
   -p 8504:8504 \
   -v ~/projects:/workspace \
-  -e DEEPSEEK_API_KEY=sk-... \
+  -e DEEPSEEK_API_KEY=123 \
   pi-web
 ```
 
@@ -103,12 +103,12 @@ docker run -d \
   -p 8504:8504 \
   -v ~/projects:/workspace \
   -v ~/.pi:/home/pi-web/.pi:ro \
-  -e GITHUB_TOKEN=ghp_xxx \
-  -e GITLAB_TOKEN=glpat_xxx \
+  -e GITHUB_TOKEN=123 \
+  -e GITLAB_TOKEN=123 \
   -e GITLAB_HOST=gitlab.example.com \
-  -e TEA_TOKEN=xxx \
+  -e TEA_TOKEN=123 \
   -e TEA_BASE_URL=https://gitea.example.com \
-  -e FORGEJO_TOKEN=xxx \
+  -e FORGEJO_TOKEN=123 \
   -e FORGEJO_URL=https://forgejo.example.com \
   pi-web
 ```
