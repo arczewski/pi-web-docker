@@ -18,10 +18,10 @@ if [ -n "$SKILL_REPOSITORIES" ]; then
     
     if [ -d "$TARGET_DIR/.git" ]; then
       echo "  Updating $REPO_NAME..."
-      git -C "$TARGET_DIR" pull --ff-only 2>/dev/null || echo "  Warning: could not update $REPO_NAME"
+      GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" git -C "$TARGET_DIR" pull --ff-only 2>/dev/null || echo "  Warning: could not update $REPO_NAME"
     else
       echo "  Cloning $REPO_NAME..."
-      git clone --depth 1 "$REPO_URL" "$TARGET_DIR" 2>/dev/null || echo "  Warning: could not clone $REPO_URL"
+      GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" git clone --depth 1 "$REPO_URL" "$TARGET_DIR" 2>/dev/null || echo "  Warning: could not clone $REPO_URL"
     fi
   done
   
