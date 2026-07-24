@@ -10,7 +10,7 @@ Self-hosted [pi-web](https://github.com/jmfederico/pi-web) server with [pi-codin
 docker build -t pi-web .
 ```
 
-All dependencies are verified with SHA512/SHA256 hashes. Build fails if any hash mismatches.
+All dependencies are verified with SHA512 integrity hashes. Build fails if any hash mismatches.
 
 ### Run
 
@@ -72,6 +72,6 @@ docker stop pi-web && docker rm pi-web
 
 - **pi-coding-agent** v0.81.1: SHA512 integrity hash from npm
 - **pi-web** v1.202607.1: SHA512 integrity hash from npm
-- **forgejo-cli** v0.6.0: Version pinned, compiled from source
+- **User restrictions**: The `pi-web` user has no access to `npm`, `npx`, or `python3` — only pre-installed packages can be used
 
-npm packages are verified with integrity hashes. Build fails if any hash mismatches.
+All packages are verified with integrity hashes at build time. Build fails if any hash mismatches.
