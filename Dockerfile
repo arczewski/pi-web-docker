@@ -59,9 +59,9 @@ RUN curl -fSL -o /tmp/tea.xz https://gitea.com/gitea/tea/releases/download/v0.14
     mv /tmp/tea /usr/local/bin/tea && \
     chmod +x /usr/local/bin/tea
 
-# Create non-root user
-RUN groupadd -g 1000 pi-web && \
-    useradd -u 1000 -g pi-web -m pi-web && \
+# Create non-root user (avoid GID/UID conflicts with base image)
+RUN groupadd -g 1001 pi-web && \
+    useradd -u 1001 -g pi-web -m pi-web && \
     mkdir -p /home/pi-web/.ssh && \
     chmod 700 /home/pi-web/.ssh
 
