@@ -28,12 +28,5 @@ if [ -n "$SKILL_REPOSITORIES" ]; then
   echo "Skill prefetch complete."
 fi
 
-# Switch to predefined project directory if set
-if [ -n "$PI_WEB_PROJECT" ]; then
-  mkdir -p "$PI_WEB_PROJECT"
-  cd "$PI_WEB_PROJECT"
-  echo "Working directory: $(pwd)"
-fi
-
 # Launch session daemon and web server
 exec bash -c 'trap "kill 0" EXIT; pi-web-sessiond & sleep 1 && pi-web-server & wait'
