@@ -36,6 +36,36 @@ Custom port:
 docker run -d --name pi-web -p 9000:9000 -e PORT=9000 -v ~/projects:/workspace pi-web
 ```
 
+## CLI Tools & Authentication
+
+The container includes the following CLI tools for Git platform operations:
+
+| Tool | Binary | Platform | Auth via env var |
+|------|--------|----------|-----------------|
+| **GitHub CLI** | `gh` | github.com | `GITHUB_TOKEN` |
+| **GitLab CLI** | `glab` | gitlab.com | `GITLAB_TOKEN` or `GITLAB_TOKEN` + `GITLAB_HOST` |
+| **Gitea CLI** | `tea` | any Gitea instance | `TEA_TOKEN` + `TEA_BASE_URL` |
+| **Forgejo CLI** | `fj` | any Forgejo instance | `FORGEJO_TOKEN` + `FORGEJO_URL` |
+
+### Usage examples
+
+```bash
+docker run -d \
+  --name pi-web \
+  -p 8504:8504 \
+  -v ~/projects:/workspace \
+  -v ~/.pi:/home/pi-web/.pi:ro \
+  -e GITHUB_TOKEN=ghp_xxx \
+  -e GITLAB_TOKEN=glpat_xxx \
+  -e TEA_TOKEN=xxx \
+  -e TEA_BASE_URL=https://gitea.example.com \
+  -e FORGEJO_TOKEN=xxx \
+  -e FORGEJO_URL=https://forgejo.example.com \
+  pi-web
+```
+
+These environment variables are consumed by the respective CLIs at runtime, allowing agent skills to interact with repositories across different platforms.
+
 ## User Home & Pi Configuration
 
 The container runs as user `pi-web` with home directory at `/home/pi-web`.
@@ -72,6 +102,10 @@ docker stop pi-web && docker rm pi-web
 
 - **pi-coding-agent** v0.81.1: SHA512 integrity hash from npm
 - **pi-web** v1.202607.1: SHA512 integrity hash from npm
-- **User restrictions**: The `pi-web` user has no access to `npm`, `npx`, or `python3` — only pre-installed packages can be used
+- **forgejo-cli** v0.6.0: compiled from source via cargo
+- **GitHub CLI** v2.96.0: prebuilt binary with SHA256 verification
+- **GitLab CLI** v1.22.0: prebuilt binary with SHA256 verification
+- **Gitea CLI** v0.14.2: prebuilt binary with SHA256 verification
+- **User restrictions**: The `pi-web` user has no access to `npm`, `npx`, `python3`, or `cargo` — only pre-installed packages and CLIs can be used
 
 All packages are verified with integrity hashes at build time. Build fails if any hash mismatches.
