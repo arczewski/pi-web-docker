@@ -47,9 +47,10 @@ RUN curl -fSL -o /tmp/gh.tar.gz https://github.com/cli/cli/releases/download/v2.
 # Install GitLab CLI (glab) — prebuilt binary with SHA256 verification
 RUN curl -fSL -o /tmp/glab.tar.gz https://github.com/profclems/glab/releases/download/v1.22.0/glab_1.22.0_Linux_x86_64.tar.gz && \
     echo "7d70af94648cd7720899315ddd9efdf981769f636b3cf6976508a939d5248a5f  /tmp/glab.tar.gz" | sha256sum -c - && \
-    tar xzf /tmp/glab.tar.gz -C /tmp && \
-    mv /tmp/glab_1.22.0_Linux_x86_64/bin/glab /usr/local/bin/glab && \
-    rm -rf /tmp/glab.tar.gz /tmp/glab_1.22.0_Linux_x86_64
+    mkdir -p /tmp/glab-extract && \
+    tar xzf /tmp/glab.tar.gz -C /tmp/glab-extract && \
+    mv /tmp/glab-extract/bin/glab /usr/local/bin/glab && \
+    rm -rf /tmp/glab.tar.gz /tmp/glab-extract
 
 # Install Gitea CLI (tea) — prebuilt binary with SHA256 verification
 RUN curl -fSL -o /tmp/tea.xz https://gitea.com/gitea/tea/releases/download/v0.14.2/tea-0.14.2-linux-amd64.xz && \
