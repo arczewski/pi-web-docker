@@ -1,161 +1,76 @@
 # pi-web Docker
 
-Self-hosted [pi-web](https://github.com/jmfederico/pi-web) server with [pi-coding-agent](https://github.com/earendil-works/pi-coding-agent).
+Self-hosted [pi-web](https://github.com/jmfederico/pi-web) with [pi-coding-agent](https://github.com/earendil-works/pi-coding-agent).
 
 ## Quick Start
 
-### Prebuilt image
-
-The image is published to GitHub Container Registry on every push to `main`:
-
 ```bash
+# Pull prebuilt image (published on every push to main)
 docker pull ghcr.io/arczewski/pi-web-docker:main
-```
 
-### Build locally
-
-```bash
+# Or build locally
 docker build -t pi-web .
+
+# Run with just an API key
+docker run -d --name pi-web -p 8504:8504 -v ~/projects:/workspace -e DEEPSEEK_API_KEY=123 pi-web
 ```
 
-All dependencies are verified with SHA512 integrity hashes. Build fails if any hash mismatches.
+Open `http://localhost:8504`.
 
-### Run
+## Run Reference
 
 ```bash
-docker run -d \
-  --name pi-web \
-  -p 8504:8504 \
+docker run -d --name pi-web -p 8504:8504 \
   -v ~/projects:/workspace \
-  pi-web
-```
-
-Open `http://localhost:8504` in your browser.
-
-## Configuration
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` / `PI_WEB_PORT` | `8504` | Port to listen on |
-| `PI_WEB_HOST` | `0.0.0.0` | Bind address (`0.0.0.0` for all interfaces, `127.0.0.1` for local-only) |
-| `SKILL_REPOSITORIES` | — | Space-separated git URLs to clone into skills folder at startup |
-
-Custom port:
-
-```bash
-docker run -d --name pi-web -p 9000:9000 -e PORT=9000 -v ~/projects:/workspace pi-web
-```
-
-## Skill Prefetching
-
-On startup, the container clones or updates skill repositories listed in `SKILL_REPOSITORIES`:
-
-```bash
-docker run -d \
-  --name pi-web \
-  -p 8504:8504 \
-  -v ~/projects:/workspace \
-  -e SKILL_REPOSITORIES="https://git.su58.net/arczewski/dot-agent-skills.git https://github.com/example/other-skills.git" \
-  pi-web
-```
-
-Each repo is cloned into `/home/pi-web/.pi/agent/skills/<repo-name>/`. If already present, it does a fast-forward pull. Private repos require [mounting your SSH keys or git credentials](https://docs.github.com/en/authentication/connecting-to-github-with-ssh).
-
-## Authentication
-
-### pi-coding-agent (AI Provider)
-
-pi reads API keys and provider configuration from your `~/.pi/agent/` directory at runtime. Mount it to use your existing setup:
-
-**Option 1: Mount your existing config (recommended)**
-
-This brings in your auth, custom providers (local servers, llama.cpp, etc.), settings, and models — everything works as-is:
-
-```bash
-docker run -d \
-  --name pi-web \
-  -p 8504:8504 \
-  -v ~/projects:/workspace \
-  -v ~/.pi:/home/pi-web/.pi:ro \
-  pi-web
-```
-
-**Option 2: Environment variables**
-
-pi also reads API keys from env vars. Useful if you don't want to mount your full config:
-
-| Provider | Environment Variable |
-|----------|---------------------|
-| Anthropic | `ANTHROPIC_API_KEY` |
-| OpenAI | `OPENAI_API_KEY` |
-| DeepSeek | `DEEPSEEK_API_KEY` |
-| Google Gemini | `GEMINI_API_KEY` |
-| ... and many more | see [pi docs](https://github.com/earendil-works/pi-coding-agent) |
-
-```bash
-docker run -d \
-  --name pi-web \
-  -p 8504:8504 \
-  -v ~/projects:/workspace \
+  -v ~/.pi/agent/settings.json:/home/pi-web/.pi/agent/settings.json:ro \  # (optional) mount your config files individually
+  -v ~/.pi/agent/models.json:/home/pi-web/.pi/agent/models.json:ro \
+  -v ~/.pi/agent/skills:/home/pi-web/.pi/agent/skills:ro \               # or mount full ~/.pi
+  -e ANTHROPIC_API_KEY=123 \        # AI provider (pick one)
   -e DEEPSEEK_API_KEY=123 \
-  pi-web
-```
-
-### Git Platform CLIs
-
-The container includes CLI tools for Git platform operations:
-
-| Tool | Binary | Platform | Auth via env var |
-|------|--------|----------|-----------------|
-| **GitHub CLI** | `gh` | github.com | `GITHUB_TOKEN` |
-| **GitLab CLI** | `glab` | gitlab.com | `GITLAB_TOKEN` |
-| **Gitea CLI** | `tea` | any Gitea instance | `TEA_TOKEN` + `TEA_BASE_URL` |
-| **Forgejo CLI** | `fj` | any Forgejo instance | `FORGEJO_TOKEN` + `FORGEJO_URL` |
-
-### Full example (config + all tokens)
-
-```bash
-docker run -d \
-  --name pi-web \
-  -p 8504:8504 \
-  -v ~/projects:/workspace \
-  -v ~/.pi:/home/pi-web/.pi:ro \
-  -e GITHUB_TOKEN=123 \
+  -e GITHUB_TOKEN=123 \             # Git platform CLIs
   -e GITLAB_TOKEN=123 \
-  -e GITLAB_HOST=gitlab.example.com \
-  -e TEA_TOKEN=123 \
-  -e TEA_BASE_URL=https://gitea.example.com \
-  -e FORGEJO_TOKEN=123 \
-  -e FORGEJO_URL=https://forgejo.example.com \
-  -e SKILL_REPOSITORIES="https://git.su58.net/arczewski/dot-agent-skills.git" \
+  -e FORGEJO_TOKEN=123 -e FORGEJO_URL=https://forgejo.example.com \
+  -e TEA_TOKEN=123 -e TEA_BASE_URL=https://gitea.example.com \
+  -e SKILL_REPOSITORIES="https://git.su58.net/arczewski/dot-agent-skills.git" \  # auto-clone skills on startup
   pi-web
 ```
 
-All environment variables are consumed at runtime by their respective tools. The AI provider config (DeepSeek, local servers, llama.cpp) comes from your mounted `~/.pi/agent/` files — no need to pass those as env vars.
+| Env var | Default | Purpose |
+|---------|---------|---------|
+| `PORT` / `PI_WEB_PORT` | `8504` | Web UI port |
+| `PI_WEB_HOST` | `0.0.0.0` | Bind address |
+| `ANTHROPIC_API_KEY` | — | Anthropic AI provider |
+| `DEEPSEEK_API_KEY` | — | DeepSeek AI provider |
+| `OPENAI_API_KEY` | — | OpenAI AI provider |
+| `GITHUB_TOKEN` | — | GitHub CLI (`gh`) |
+| `GITLAB_TOKEN` | — | GitLab CLI (`glab`) |
+| `FORGEJO_TOKEN` | — | Forgejo CLI (`fj`) — also stores current session |
+| `FORGEJO_URL` | — | Forgejo instance URL |
+| `TEA_TOKEN` | — | Gitea CLI (`tea`) |
+| `TEA_BASE_URL` | — | Gitea instance URL |
+| `SKILL_REPOSITORIES` | — | Space-separated git URLs cloned to `~/.pi/agent/skills/` on startup |
+
+Mounting `~/.pi:/home/pi-web/.pi:ro` brings in all your pi config (settings, models, auth, skills) at once — no need for individual env vars except API keys that aren't in `auth.json`.
 
 ## Management
 
 ```bash
-# View logs
-docker logs -f pi-web
-
-# Stop/Start/Restart
-docker stop pi-web
-docker start pi-web
-docker restart pi-web
-
-# Remove
-docker stop pi-web && docker rm pi-web
+docker logs -f pi-web     # View logs
+docker stop pi-web        # Stop
+docker start pi-web       # Start
+docker restart pi-web     # Restart
+docker rm -f pi-web       # Remove
 ```
 
 ## Security
 
-- **pi-coding-agent** v0.81.1: SHA512 integrity hash from npm
-- **pi-web** v1.202607.1: SHA512 integrity hash from npm
-- **forgejo-cli** v0.6.0: compiled from source via cargo
-- **GitHub CLI** v2.96.0: prebuilt binary with SHA256 verification
-- **GitLab CLI** v1.22.0: prebuilt binary with SHA256 verification
-- **Gitea CLI** v0.14.2: prebuilt binary with SHA256 verification
-- **User restrictions**: The `pi-web` user has no access to `npm`, `npx`, `python3`, or `cargo` — only pre-installed packages and CLIs can be used
+| Package | Version | Verification |
+|---------|---------|-------------|
+| pi-coding-agent | 0.81.1 | SHA512 from npm |
+| pi-web | 1.202607.1 | SHA512 from npm |
+| GitHub CLI | 2.96.0 | SHA256 prebuilt binary |
+| GitLab CLI | 1.22.0 | SHA256 prebuilt binary |
+| Gitea CLI | 0.14.2 | SHA256 prebuilt binary |
+| Forgejo CLI | 0.6.0 | Compiled from source |
 
-All packages are verified with integrity hashes at build time. Build fails if any hash mismatches.
+The `pi-web` user has no access to `npm`, `npx`, `python3`, or `cargo`. Build fails if any integrity hash mismatches.
