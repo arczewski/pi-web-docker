@@ -63,18 +63,21 @@ RUN curl -fSL -o /tmp/tea.xz https://gitea.com/gitea/tea/releases/download/v0.14
 RUN groupadd -o -g 1000 pi-web && \
     useradd -o -u 1000 -g pi-web -m pi-web && \
     mkdir -p /home/pi-web/.ssh && \
-    chmod 700 /home/pi-web/.ssh
+    chmod 700 /home/pi-web/.ssh && \
+    echo 'export HOME=/home/pi-web' >> /home/pi-web/.bashrc
 
 # Workspace for all user projects (not pi-web itself)
 WORKDIR /workspace
 
-# Default port and host — override at runtime with -e PORT=... / -e PI_WEB_HOST=...
+# Default port, host, home, and data dir — override at runtime with env vars
 ENV PORT=8504 \
-    PI_WEB_HOST=0.0.0.0
+    PI_WEB_HOST=0.0.0.0 \
+    HOME=/home/pi-web \
+    PI_WEB_DATA_DIR=/home/pi-web/.pi-web
 
 EXPOSE ${PORT}
 
 USER pi-web
 
-# Launch pi-web server (pi agent operates on /workspace)
-CMD ["pi-web-server"]
+# Launch session daemon and web server (pi agent operates on /workspace)
+CMD bash -c 'trap "kill 0" EXIT; pi-web-sessiond & sleep 1 && pi-web-server & wait'
