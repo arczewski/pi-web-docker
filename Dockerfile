@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libssl-dev \
     python3 \
     xz-utils \
+    vim \
     && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
     && . "$HOME/.cargo/env" && cargo --version \
     && rm -rf /var/lib/apt/lists/*
