@@ -44,18 +44,44 @@ Custom port:
 docker run -d --name pi-web -p 9000:9000 -e PORT=9000 -v ~/projects:/workspace pi-web
 ```
 
-## CLI Tools & Authentication
+## Authentication
 
-The container includes the following CLI tools for Git platform operations:
+### pi-coding-agent (AI Provider)
+
+pi reads API keys directly from environment variables at runtime. Pass the key for your chosen provider:
+
+| Provider | Environment Variable |
+|----------|---------------------|
+| Anthropic | `ANTHROPIC_API_KEY` |
+| OpenAI | `OPENAI_API_KEY` |
+| Google Gemini | `GEMINI_API_KEY` |
+| DeepSeek | `DEEPSEEK_API_KEY` |
+| xAI | `XAI_API_KEY` |
+| OpenRouter | `OPENROUTER_API_KEY` |
+| Groq | `GROQ_API_KEY` |
+| ... and many more | see [pi docs](https://github.com/earendil-works/pi-coding-agent) |
+
+```bash
+docker run -d \
+  --name pi-web \
+  -p 8504:8504 \
+  -v ~/projects:/workspace \
+  -e ANTHROPIC_API_KEY=sk-ant-... \
+  pi-web
+```
+
+### Git Platform CLIs
+
+The container includes CLI tools for Git platform operations:
 
 | Tool | Binary | Platform | Auth via env var |
 |------|--------|----------|-----------------|
 | **GitHub CLI** | `gh` | github.com | `GITHUB_TOKEN` |
-| **GitLab CLI** | `glab` | gitlab.com | `GITLAB_TOKEN` or `GITLAB_TOKEN` + `GITLAB_HOST` |
+| **GitLab CLI** | `glab` | gitlab.com | `GITLAB_TOKEN` |
 | **Gitea CLI** | `tea` | any Gitea instance | `TEA_TOKEN` + `TEA_BASE_URL` |
 | **Forgejo CLI** | `fj` | any Forgejo instance | `FORGEJO_TOKEN` + `FORGEJO_URL` |
 
-### Usage examples
+### Full example with all tokens
 
 ```bash
 docker run -d \
@@ -63,8 +89,10 @@ docker run -d \
   -p 8504:8504 \
   -v ~/projects:/workspace \
   -v ~/.pi:/home/pi-web/.pi:ro \
+  -e ANTHROPIC_API_KEY=sk-ant-... \
   -e GITHUB_TOKEN=ghp_xxx \
   -e GITLAB_TOKEN=glpat_xxx \
+  -e GITLAB_HOST=gitlab.example.com \
   -e TEA_TOKEN=xxx \
   -e TEA_BASE_URL=https://gitea.example.com \
   -e FORGEJO_TOKEN=xxx \
@@ -72,7 +100,7 @@ docker run -d \
   pi-web
 ```
 
-These environment variables are consumed by the respective CLIs at runtime, allowing agent skills to interact with repositories across different platforms.
+All environment variables are consumed at runtime by their respective tools, allowing agent skills to use both AI and Git platform APIs.
 
 ## User Home & Pi Configuration
 
