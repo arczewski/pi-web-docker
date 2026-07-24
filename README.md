@@ -37,6 +37,7 @@ Open `http://localhost:8504` in your browser.
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `PORT` | `8504` | Port to listen on |
+| `HOST` | `0.0.0.0` | Bind address (use `0.0.0.0` for all interfaces) |
 
 Custom port:
 
