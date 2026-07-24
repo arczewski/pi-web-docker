@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
     xz-utils \
     vim \
+    openssh-client \
     && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
     && . "$HOME/.cargo/env" && cargo --version \
     && rm -rf /var/lib/apt/lists/*
