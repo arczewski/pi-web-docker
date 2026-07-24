@@ -4,7 +4,15 @@ Self-hosted [pi-web](https://github.com/jmfederico/pi-web) server with [pi-codin
 
 ## Quick Start
 
-### Build
+### Prebuilt image
+
+The image is published to GitHub Container Registry on every push to `main`:
+
+```bash
+docker pull ghcr.io/arczewski/pi-web-docker:main
+```
+
+### Build locally
 
 ```bash
 docker build -t pi-web .
