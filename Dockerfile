@@ -78,7 +78,11 @@ ENV PORT=8504 \
 
 EXPOSE ${PORT}
 
+# Copy entrypoint script
+COPY --chown=pi-web:pi-web entrypoint.sh /home/pi-web/entrypoint.sh
+RUN chmod +x /home/pi-web/entrypoint.sh
+
 USER pi-web
 
-# Launch session daemon and web server (pi agent operates on /workspace)
-CMD bash -c 'trap "kill 0" EXIT; pi-web-sessiond & sleep 1 && pi-web-server & wait'
+# Entrypoint prefetches skills from SKILL_REPOSITORIES, then launches session daemon and web server
+ENTRYPOINT ["/home/pi-web/entrypoint.sh"]

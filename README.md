@@ -38,12 +38,28 @@ Open `http://localhost:8504` in your browser.
 |----------|---------|-------------|
 | `PORT` / `PI_WEB_PORT` | `8504` | Port to listen on |
 | `PI_WEB_HOST` | `0.0.0.0` | Bind address (`0.0.0.0` for all interfaces, `127.0.0.1` for local-only) |
+| `SKILL_REPOSITORIES` | — | Space-separated git URLs to clone into skills folder at startup |
 
 Custom port:
 
 ```bash
 docker run -d --name pi-web -p 9000:9000 -e PORT=9000 -v ~/projects:/workspace pi-web
 ```
+
+## Skill Prefetching
+
+On startup, the container clones or updates skill repositories listed in `SKILL_REPOSITORIES`:
+
+```bash
+docker run -d \
+  --name pi-web \
+  -p 8504:8504 \
+  -v ~/projects:/workspace \
+  -e SKILL_REPOSITORIES="https://git.su58.net/arczewski/dot-agent-skills.git https://github.com/example/other-skills.git" \
+  pi-web
+```
+
+Each repo is cloned into `/home/pi-web/.pi/agent/skills/<repo-name>/`. If already present, it does a fast-forward pull. Private repos require [mounting your SSH keys or git credentials](https://docs.github.com/en/authentication/connecting-to-github-with-ssh).
 
 ## Authentication
 
@@ -111,6 +127,7 @@ docker run -d \
   -e TEA_BASE_URL=https://gitea.example.com \
   -e FORGEJO_TOKEN=123 \
   -e FORGEJO_URL=https://forgejo.example.com \
+  -e SKILL_REPOSITORIES="https://git.su58.net/arczewski/dot-agent-skills.git" \
   pi-web
 ```
 
